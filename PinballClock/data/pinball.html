@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+  <meta charset="UTF-8">
+  <title>Pinball Physics</title>
+  
+      <link rel="stylesheet" href="css/style.css">
+
+  
+</head>
+
+<body>
+
+
+<div id="mySidenav" class="sidenav">
+  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+  <a href="./">Home</a>
+</div>
+ 
+  <div class="frame">
+<span style="font-size:30px;cursor:pointer;left: 1em;position: absolute;top: 1em;" onclick="openNav()">&#9776; Menu</span>
+ <div class="container">
+  <div class="score current-score">
+    score<br><span></span>
+  </div>
+  <div class="score high-score">
+    high score<br><span></span>
+  </div>
+  <button class="trigger left-trigger">tap!</button>
+  <button class="trigger right-trigger">tap!</button>
+  <button class="ball_btn start-trigger">Start</button>
+</div>
+  <script src='js/jquery.min.js'></script>
+<script src='js/decomp.min.js'></script>
+<script src='js/matter.min.js'></script>
+<script src='js/matter-attractors.min.js'></script>
+<script  src="js/index.js"></script>
+
+
+
+</div>
+
+<script>
+function openNav() {
+    document.getElementById("mySidenav").style.width = "250px";
+}
+
+function closeNav() {
+    document.getElementById("mySidenav").style.width = "0";
+}
+</script>
+
+</body>
+
+
+
+</html>
