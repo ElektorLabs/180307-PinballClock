@@ -9,6 +9,13 @@
 WebSocketsServer webSocket = WebSocketsServer(8080);
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length);
 
+/**************************************************************************************************
+*    Function      : ws_service_begin
+*    Description   : Makes the WebsocketServer init
+*    Input         : none
+*    Output        : none
+*    Remarks       : none
+**************************************************************************************************/
 void ws_service_begin(){
   
   webSocket.begin();
@@ -16,10 +23,24 @@ void ws_service_begin(){
   
 }
 
+/**************************************************************************************************
+*    Function      : ws_task
+*    Description   : needs to be polled from the superloop
+*    Input         : none
+*    Output        : none
+*    Remarks       : none
+**************************************************************************************************/
 void ws_task( void ){
   webSocket.loop();
 }
 
+/**************************************************************************************************
+*    Function      : webSocketEvent
+*    Description   : Event if something happes on the ws connections 
+*    Input         : none
+*    Output        : none
+*    Remarks       : none
+**************************************************************************************************/
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
     StaticJsonBuffer<200> jsonBuffer;
     switch(type) {

@@ -10,6 +10,7 @@ To compile the code you need to include some libarys
 - MCP23008 by Adafruit
 - TimelLib (Arduino Core)
 - Arduino JSON 5.x
+- WebSockets by Mrkus Sattler 
 - NtpClientLib form https://github.com/gmag11/NtpClient/tree/AsyncUDP ( use the AsyncUDP branch )
 - U8G2
 

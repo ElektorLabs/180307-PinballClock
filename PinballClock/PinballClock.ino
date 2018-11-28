@@ -4,6 +4,7 @@
  * RTCLib by Adafruit
  * MCP23008 by Adafruit
  * TimelLib (Arduino Core)
+ * WebsocketServer
  * Arduino JSON 5.x
  * NtpClientLib form https://github.com/gmag11/NtpClient/tree/AsyncUDP ( use the AsyncUDP branch )
  * 
