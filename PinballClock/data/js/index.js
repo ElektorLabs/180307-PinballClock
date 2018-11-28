@@ -1,7 +1,10 @@
 (() => {
 	// plugins
 	Matter.use(MatterAttractors);
-
+    pinballws =null;
+    
+    wsdata = {"bell":255,"score":0};
+    
 	// constants
 	const PATHS = {
 		DOME: '0 0 0 250 19 250 20 231.9 25.7 196.1 36.9 161.7 53.3 129.5 74.6 100.2 100.2 74.6 129.5 53.3 161.7 36.9 196.1 25.7 231.9 20 268.1 20 303.9 25.7 338.3 36.9 370.5 53.3 399.8 74.6 425.4 100.2 446.7 129.5 463.1 161.7 474.3 196.1 480 231.9 480 250 500 250 500 0 0 0',
@@ -16,12 +19,16 @@
 		INNER: '#15aabf',
 		BUMPER: '#fab005',
 		BUMPER_LIT: '#fff3bf',
+        HIBUMPER: '#603e58', 
+		HIBUMPER_LIT: '#2ab2b2',
 		PADDLE: '#e64980',
 		PINBALL: '#dee2e6'
+        
 	};
 	const GRAVITY = 0.75;
 	const WIREFRAMES = false;
 	const BUMPER_BOUNCE = 1.25;
+    const HIBUMPER_BOUNCE = 1.01;
 	const PADDLE_PULL = 0.002;
 	const MAX_VELOCITY = 50;
 
@@ -43,11 +50,31 @@
 		createEvents();
 	}
 
+    function ws_connect(){
+       var host = window.location.hostname;
+        var url = "ws://"+host+":8080/" ;
+        try{
+            pinballws = new WebSocket(url);
+            pinballws.onopen = initws;
+        } catch {
+          pinballws=null;  
+        }
+    }
+
+    function initws(){
+        
+        wsdata["score"]=0;
+        wsdata["bell"]=255;
+        var data = JSON.stringify(wsdata);
+        pinballws.send(data);
+    
+    }
+    
 	function init() {
 		// engine (shared)
 		engine = Matter.Engine.create();
-
-		// world (shared)
+        ws_connect();
+        // world (shared)
 		world = engine.world;
 		world.bounds = {
 			min: { x: 0, y: 0},
@@ -106,6 +133,10 @@
 			// bottom bumpers (left, right)
 			bumper(170, 345),
 			bumper(290, 345),
+            
+			//hi point small bumper 
+			hibumper(75,150),
+			hibumper(375,150),
 
 			// shooter lane wall
 			wall(440, 520, 20, 560, COLOR.OUTER),
@@ -261,6 +292,13 @@
 						case 'bumper':
 							pingBumper(pair.bodyA);
 							break;
+                            
+                        case 'hibumper':
+                            pingHiBumper(pair.bodyA);
+                            break;
+                            
+                        default:
+                           
 					}
 				}
 			});
@@ -343,8 +381,20 @@
 
 		// flash color
 		bumper.render.fillStyle = COLOR.BUMPER_LIT;
+		RingSmallBell();
 		setTimeout(function() {
 			bumper.render.fillStyle = COLOR.BUMPER;
+		}, 100);
+	}
+    
+    function pingHiBumper(hibumper) {
+		updateScore(currentScore + 20);
+
+		// flash color
+		hibumper.render.fillStyle = COLOR.HIBUMPER_LIT;
+		RingMidBell();
+		setTimeout(function() {
+			hibumper.render.fillStyle = COLOR.HIBUMPER;
 		}, 100);
 	}
 
@@ -413,6 +463,22 @@
 
 		return bumper;
 	}
+    
+    function hibumper(x,y){
+    	let hibumper = Matter.Bodies.circle(x, y, 15, {
+			label: 'hibumper',
+			isStatic: true,
+			render: {
+				fillStyle: COLOR.HIBUMPER
+			}
+		});
+
+		// for some reason, restitution is reset unless it's set after body creation
+		bumper.restitution = HIBUMPER_BOUNCE;
+
+		return hibumper;
+    
+    }
 
 	// invisible bodies to constrict paddles
 	function stopper(x, y, side, position) {
@@ -461,11 +527,25 @@
 
 	window.addEventListener('load', load, false);
     
-   setInterval(post_score, 1000)
-    
+   
+	
+   function RingSmallBell( ){
+	  wsdata["score"]=currentScore;
+      wsdata["bell"]=0;
+      var data = JSON.stringify(wsdata)
+	pinballws.send(data);
+   }
+
+   function RingMidBell( ){
+      wsdata["score"]=currentScore;
+      wsdata["bell"]=1;
+      var data = JSON.stringify(wsdata)
+	pinballws.send(data);
+   }
+
    function post_score(  ){
-       var new_score = currentScore;
        
+       var new_score = currentScore;    
        var protocol = location.protocol;
        var slashes = protocol.concat("//");
        var host = slashes.concat(window.location.hostname);
@@ -474,7 +554,7 @@
        data.push({key:"pinball_score",
                  value: new_score});
             
-        sendData(url,data); 
+       sendData(url,data); 
    
    } 
 
@@ -489,10 +569,6 @@
       }
 
       urlEncodedData = urlEncodedDataPairs.join('&').replace(/%20/g, '+');
-
-      XHR.addEventListener('load', function(event) {
-        LoadParameter();
-      });
 
       XHR.addEventListener('error', function(event) {
         console.log('HTTP POST: Oops! Something goes wrong.');

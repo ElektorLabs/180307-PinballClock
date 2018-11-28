@@ -167,6 +167,15 @@ display_config_t GetDefaultSettings( void );
 void Display_SaveSettings( void );
 
 /**************************************************************************************************
+ *    Function      : Display_SaveSettings
+ *    Description   : Saves the current settings 
+ *    Input         : uint8_t IDX
+ *    Output        : none
+ *    Remarks       : none
+ **************************************************************************************************/
+void Display_RingBell( uint8_t idx );
+
+/**************************************************************************************************
  *    Function      : wheel_fsm
  *    Description   : FSM for the wheels, need to be called every 10ms
  *    Input         : none
@@ -174,6 +183,15 @@ void Display_SaveSettings( void );
  *    Remarks       : none
  **************************************************************************************************/
 void wheel_fsm( void );
+
+/**************************************************************************************************
+ *    Function      : bell_fsm
+ *    Description   : FSM for the bells, need to be called every 10ms
+ *    Input         : none
+ *    Output        : none
+ *    Remarks       : none
+ **************************************************************************************************/
+void bell_fsm( void );
 
 #endif
 

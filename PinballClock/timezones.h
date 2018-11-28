@@ -46,7 +46,7 @@
 
 
 /* needs to go to flash */
-  timezone_t ZoneTable[TIMEZONEENUM_CNT]={
+timezone_t ZoneTable[TIMEZONEENUM_CNT] ={
 [Africa_Abidjan]={.Zone=GMT, .Offset = CONVTIME(0,0,0), .has_dls=false, .StartRule={ First, Sun, Jan, 0, 0}, .EndRule={ First, Sun, Jan, 0, 0,0}},
 [Africa_Accra]={.Zone=GMT, .Offset = CONVTIME(0,0,0), .has_dls=false, .StartRule={ First, Sun, Jan, 0, 0}, .EndRule={ First, Sun, Jan, 0, 0,0}},
 [Africa_Addis_Ababa]={.Zone=EAT, .Offset = CONVTIME(3,0,0), .has_dls=false, .StartRule={ First, Sun, Jan, 0, 0}, .EndRule={ First, Sun, Jan, 0, 0,0}},
@@ -431,6 +431,7 @@
 };
 
 /* needs to go to flash */
+/*
 const char* TimeZoneNames[TIMEZONEENUM_CNT] ={
 [Africa_Abidjan]="Africa/Abidjan",
 [Africa_Accra]="Africa/Accra",
@@ -815,5 +816,5 @@ const char* TimeZoneNames[TIMEZONEENUM_CNT] ={
 [Pacific_Yap]="Pacific/Yap"
 
 };
-  
+ */
 #endif

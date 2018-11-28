@@ -2,6 +2,9 @@
 #include <ArduinoJson.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266WebServerSecure.h>
+#include <WebSocketsServer.h>
+#include <Hash.h>
+
 #include "timecore.h"
 #include "NTP_Client.h"
 #include "datastore.h"
@@ -552,4 +555,24 @@ void display_readstatus(){
 
 }
 
+/**************************************************************************************************
+*    Function      : display_ring_bell
+*    Description   : none
+*    Input         : none
+*    Output        : none
+*    Remarks       : none
+**************************************************************************************************/
+void display_ring_bell(void){
+if( ! server->hasArg("bell") || server->arg("bell") == NULL ) { // If the POST request doesn't have username and password data
+    /* we are missing something here */
+  } else {
+   
+    int32_t bell_idx = server->arg("bell").toInt();
+    if( (bell_idx>=0) && ( bell_idx < 255 ) ){
+      //Display_RingBell((uint8_t)bell_idx);
+    }
+    
+  }
+
+}
 

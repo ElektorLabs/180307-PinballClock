@@ -826,7 +826,9 @@ TIMEZONES_NAMES_t Timecore::GetTimeZone( ){
 *    Output        : none
 *    Remarks       : none
 **************************************************************************************************/ 
+/*
 const char* Timecore::GetTimeZoneName(TIMEZONES_NAMES_t Zone){
   return TimeZoneNames[Zone];
 }
+*/
 

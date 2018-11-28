@@ -335,6 +335,7 @@ void configureServer() {
   server->on("/notes.dat",HTTP_GET,read_notes);
   server->on("/notes.dat",HTTP_POST,update_notes);
   server->on("/display/resetdisplay",HTTP_GET,force_display_adjust);
+  server->on("/display/bell",HTTP_POST, display_ring_bell);
   server->onNotFound(sendFile); //handle everything except the above things
   server->begin();
   Serial.println("Webserver started");

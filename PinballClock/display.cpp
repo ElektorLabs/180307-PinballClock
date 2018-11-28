@@ -18,6 +18,7 @@ typedef struct{
 
 uint8_t reels [4]={4,3,2,1};
 uint8_t bells[3] = { SMALL_BELL , MED_BELL , BIG_BELL };
+uint8_t game_bell_ring[3]={0,};
 uint8_t bell_ring[3]={0,};
 uint32_t last_score_update=0;
 
@@ -103,7 +104,6 @@ static fsm_state_t state=idle;
 static  uint16_t oldADC=0;
 static uint16_t newADC=0;
 static uint8_t WheelIDX=0;
-static uint8_t BellIDX=0;
 static uint8_t pulsecounter=0;
 static uint16_t delay_ms=0;
   switch( state ){
@@ -128,22 +128,7 @@ static uint16_t delay_ms=0;
           Serial.printf("Move Wheel %u one step\n\r",WheelIDX);
         return;
       }
-    }
-
-    /* last things to do are the bells */
-    for( uint8_t i =0;i<3;i++){
-      if(  bell_ring[i] != 0 ){  
-        BellIDX=i;
-        state = start_bell;
-          Serial.printf("Ring Bell %u , value %u\n\r",BellIDX,bell_ring[i]);
-        return;
-      }
-    }
-
-    
-    /* next is to check if one of the wheels needs to be moved */
-    
-    
+    }    
   } break;
 
   case start_set_zero:{
@@ -205,13 +190,13 @@ static uint16_t delay_ms=0;
 //     Serial.println("szr");
      newADC = analogRead(zero);
      pulsecounter++;
-     if ( (pulsecounter<12 ) && ((newADC-oldADC)<=10) ){
+     if ( (pulsecounter<20 ) && ((newADC-oldADC)<=50) ){
       oldADC = newADC; /* next pulse */
       state = zero_pulse_high;
       
      } else {
       /* we reached zero or moved 12 times */
-      if(pulsecounter==12){
+      if(pulsecounter>=20){
         current_wheel_position[WheelIDX]=255; /* Broken */
         Serial.printf("Wheel %i is broken\r\n",WheelIDX);
       } else {
@@ -280,7 +265,47 @@ static uint16_t delay_ms=0;
     }
  } break;
 
- case start_bell:{
+  default:{
+    Serial.println("fsm_err");
+    state = idle;
+  }
+
+ }
+ WheelFaultLED();
+}
+
+/**************************************************************************************************
+ *    Function      : bell_fsm
+ *    Description   : FSM for the bells, need to be called every 10ms
+ *    Input         : none
+ *    Output        : none
+ *    Remarks       : none
+ **************************************************************************************************/
+void bell_fsm( void ){
+
+static fsm_state_t state=idle;
+static uint8_t BellIDX=0;
+static uint16_t delay_ms=0;
+  switch( state ){
+
+  case idle:{
+    /* last things to do are the bells */
+    for( uint8_t i =0;i<3;i++){
+      if(  bell_ring[i] != 0 ){  
+        BellIDX=i;
+        state = start_bell;
+          Serial.printf("Ring Bell %u , value %u\n\r",BellIDX,bell_ring[i]);
+        return;
+      }
+    }
+
+    
+    /* next is to check if one of the wheels needs to be moved */
+    
+    
+  } break;
+
+  case start_bell:{
   /* we need to know the bell no */
   mcp.digitalWrite(bells[BellIDX],HIGH);
   delay_ms = wheeltimings[local_config.wz].pulseduration;
@@ -304,14 +329,19 @@ static uint16_t delay_ms=0;
  
  case bell_pulse_low:{
   mcp.digitalWrite(bells[BellIDX],LOW);
-  delay_ms = wheeltimings[local_config.wz].pauseduration;
-   if(delay_ms % 10 != 0){
-    delay_ms = delay_ms / 10 ;
-    delay_ms++;
+  if(game_active==false){ 
+      delay_ms = wheeltimings[local_config.wz].pauseduration;
+       if(delay_ms % 10 != 0){
+        delay_ms = delay_ms / 10 ;
+        delay_ms++;
+      } else {
+        delay_ms = delay_ms / 10 ;
+      }
   } else {
-    delay_ms = delay_ms / 10 ;
+    delay_ms = 30;
   }
-  state = bell_pulse_low_wait;
+      state = bell_pulse_low_wait;
+  
  } break;
  
  case bell_pulse_low_wait:{
@@ -333,7 +363,11 @@ static uint16_t delay_ms=0;
       } else {
         delay_ms = delay_ms / 10 ;
       }
-      state = bell_pause_wait; 
+      if(game_active==false){ 
+        state = bell_pause_wait;
+      } else {
+        state = idle;
+      }
     }
  } break;
 
@@ -352,10 +386,8 @@ static uint16_t delay_ms=0;
   }
 
  }
- WheelFaultLED();
+ 
 }
-
-
 
 /**************************************************************************************************
  *    Function      : GetSleepSpanActive
@@ -512,6 +544,17 @@ void DisplayTask( void ){
               Serial.println("show_gamepoints->showtime");
               
          } else {
+
+          for(uint8_t i=0;i<3;i++){
+             if( (bell_ring[i]+ game_bell_ring[i]) <256){
+              bell_ring[i]=bell_ring[i]+ game_bell_ring[i];
+             } else {
+              bell_ring[i]=255;
+             }
+             game_bell_ring[i]=0;
+           
+          }
+          
           if(game_score>9999){
              updateClock(9,9, 9, 9 );
            } else {
@@ -665,6 +708,10 @@ void ResetWheels(){
   wheel_zero[2]=1;
   wheel_zero[3]=1;
 
+  game_bell_ring[0]=0;
+  game_bell_ring[1]=0;
+  game_bell_ring[2]=0;
+
 }
 
 
@@ -802,5 +849,22 @@ wheelstatus_t GetWheelStatus( uint8_t idx){
  **************************************************************************************************/
 void Display_SaveSettings( void ){
   write_displaysettings(local_config);
+}
+
+
+/**************************************************************************************************
+ *    Function      : Display_SaveSettings
+ *    Description   : Saves the current settings 
+ *    Input         : uint8_t IDX
+ *    Output        : none
+ *    Remarks       : none
+ **************************************************************************************************/
+void Display_RingBell( uint8_t idx ){
+
+  if(idx<3){
+   if(game_bell_ring[idx]<255){
+    game_bell_ring[idx]++;
+  }
+ }
 }
 

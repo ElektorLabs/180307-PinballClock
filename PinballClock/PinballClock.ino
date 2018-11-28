@@ -6,8 +6,7 @@
  * TimelLib (Arduino Core)
  * Arduino JSON 5.x
  * NtpClientLib form https://github.com/gmag11/NtpClient/tree/AsyncUDP ( use the AsyncUDP branch )
- * U8G2 
- *
+ * 
  * Hardware used: ESP8266 ( 12E ) on PCB of 180307
  * 
  */
@@ -36,6 +35,8 @@
 #include "NTP_Client.h"
 
 #include "display.h"
+
+#include "websocket_if.h"
 
 RTC_DS3231 rtc_clock;
 
@@ -190,7 +191,7 @@ void setup()
   NTPC.begin( &timec );
   NTPC.Sync();
   yield();
-
+  ws_service_begin();
   /* We are done now and show the inital content for the display(s) */
   SetupDisplay();
   ShowNetworkStatus();
@@ -265,6 +266,8 @@ void callback()
   }
   /* we run the wheel fsm every 10ms */
   wheel_fsm();
+  bell_fsm();
+
 }
 
 /**************************************************************************************************
@@ -279,6 +282,7 @@ void loop()
   NetworkTask();
   DisplayTask();
   timec.Task();
+  ws_task();
 }
 
 
