@@ -56,7 +56,7 @@
         try{
             pinballws = new WebSocket(url);
             pinballws.onopen = initws;
-        } catch {
+        } catch( ex ) {
           pinballws=null;  
         }
     }
@@ -66,7 +66,9 @@
         wsdata["score"]=0;
         wsdata["bell"]=255;
         var data = JSON.stringify(wsdata);
-        pinballws.send(data);
+        if(pinballws!=null){
+            pinballws.send(data);
+        }
     
     }
     
@@ -533,14 +535,18 @@
 	  wsdata["score"]=currentScore;
       wsdata["bell"]=0;
       var data = JSON.stringify(wsdata)
-	pinballws.send(data);
+      if(pinballws!=null){
+            pinballws.send(data);
+      }
    }
 
    function RingMidBell( ){
       wsdata["score"]=currentScore;
       wsdata["bell"]=1;
       var data = JSON.stringify(wsdata)
-	pinballws.send(data);
+      if(pinballws!=null){
+            pinballws.send(data);
+      }
    }
 
    function post_score(  ){
