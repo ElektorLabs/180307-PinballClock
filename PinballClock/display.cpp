@@ -429,6 +429,12 @@ bool GetSleepSpanActive( datum_t d ){
     } 
   }
  }
+ 
+ /* If the display is globally disabled */
+ if(local_config.disp_off != false ){
+   result = true;
+ }
+ 
  return result;
 }
 
@@ -472,31 +478,34 @@ void DisplayTask( void ){
             ResetWheels();
           }
          }
-         if( (last_minute==14) && ( d.minute == 15 ) ){
-          bell_ring[0]=1;
-         }
-
-         if( (last_minute==29) && ( d.minute == 30 ) ){
-          bell_ring[0]=0;
-          bell_ring[1]=1;
-          bell_ring[2]=0;
-         }
-
-        if( (last_minute==44) && ( d.minute == 45 ) ){
-          bell_ring[0]=1;
-          bell_ring[1]=1;
-          bell_ring[2]=0;
-        }
-        if( (last_minute==59) && ( d.minute == 00 ) ){
-          bell_ring[0]=0;
-          bell_ring[1]=0;
-          uint8_t _12h = d.hour;
-          if(_12h>12){
-            _12h-=12;        
+         /* This will only be done if the bell is active */
+         if(local_config.bell_off != true ){
+           if( (last_minute==14) && ( d.minute == 15 ) ){
+            bell_ring[0]=1;
+           }
+  
+           if( (last_minute==29) && ( d.minute == 30 ) ){
+            bell_ring[0]=0;
+            bell_ring[1]=1;
+            bell_ring[2]=0;
+           }
+  
+          if( (last_minute==44) && ( d.minute == 45 ) ){
+            bell_ring[0]=1;
+            bell_ring[1]=1;
+            bell_ring[2]=0;
           }
-          bell_ring[2]=_12h;
-          Serial.printf("Set Bell 2 to %u",bell_ring[2]);
-        }
+          if( (last_minute==59) && ( d.minute == 00 ) ){
+            bell_ring[0]=0;
+            bell_ring[1]=0;
+            uint8_t _12h = d.hour;
+            if(_12h>12){
+              _12h-=12;        
+            }
+            bell_ring[2]=_12h;
+            //Serial.printf("Set Bell 2 to %u",bell_ring[2]);
+          }
+         }
         last_minute = d.minute ;
          /* 
           *  Last but not least lets ring the bells 
@@ -767,6 +776,28 @@ void SetSleepMode(bool Ena){
 }
 
 /**************************************************************************************************
+ *    Function      : SetDisplayOff
+ *    Description   : Disable or Enable the Display 
+ *    Input         : bool Off
+ *    Output        : none
+ *    Remarks       : none
+ **************************************************************************************************/
+void SetDisplayOff(bool Off){
+  local_config.disp_off = Off;
+}
+
+/**************************************************************************************************
+ *    Function      : SetBellOff
+ *    Description   : Disable or Enable the Bells
+ *    Input         : bool Ena
+ *    Output        : none
+ *    Remarks       : none
+ **************************************************************************************************/
+void SetBellOff(bool Off){
+  local_config.bell_off = Off;
+}
+
+/**************************************************************************************************
  *    Function      : SetSleepTimeSpan
  *    Description   : Sets the timespan where the wheels are not moved
  *    Input         : sleepmode_span_t
@@ -799,6 +830,8 @@ display_config_t GetDefaultSettings(){
   conf.sts.endhour=7;
   conf.sts.endminute=0;
   conf.sts.endsecond=0;
+  conf.disp_off=false;
+  conf.bell_off=false;
 
   return conf;
 
@@ -861,9 +894,11 @@ void Display_SaveSettings( void ){
  **************************************************************************************************/
 void Display_RingBell( uint8_t idx ){
 
-  if(idx<3){
-   if(game_bell_ring[idx]<255){
-    game_bell_ring[idx]++;
+  if(local_config.bell_off != true ){
+    if(idx<3){
+     if(game_bell_ring[idx]<255){
+      game_bell_ring[idx]++;
+    }
   }
  }
 }

@@ -240,7 +240,7 @@ bool connectWiFi() {
   }
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("Failed to connect to " + ssid);
-    Serial.println("Second attemp " + ssid);
+    Serial.println("Second attempt " + ssid);
     u8x8log.print("Second attemp " + ssid+"\n\r");
     WiFi.disconnect(true);
     WiFi.begin(( char*)ssid.c_str(), ( char*)pass.c_str());
@@ -336,6 +336,8 @@ void configureServer() {
   server->on("/notes.dat",HTTP_POST,update_notes);
   server->on("/display/resetdisplay",HTTP_GET,force_display_adjust);
   server->on("/display/bell",HTTP_POST, display_ring_bell);
+  server->on("/display/bell_off",HTTP_POST, update_display_bell_off);
+  server->on("/display/display_bell_off",HTTP_POST, update_display_bell_off);
   server->onNotFound(sendFile); //handle everything except the above things
   server->begin();
   Serial.println("Webserver started");

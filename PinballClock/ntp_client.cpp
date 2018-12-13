@@ -20,7 +20,8 @@ NTP.onNTPSyncEvent ([&](NTPSyncEvent_t event) {
 });
 
 NTP.begin ((char*)Config.ntpServerName, DEFAULT_NTP_TIMEZONE , true, 0);
-NTP.setInterval (63);
+NTP.setNTPTimeout(2500);
+NTP.setInterval (50);
 
 }
 
@@ -68,9 +69,9 @@ void NTP_Client::SyncEvent(NTPSyncEvent_t event){
  *    Output        : none
  *    Remarks       : none
  **************************************************************************************************/
-void NTP_Client::SetServerName( char* ServerName ){
-  strncpy((char*)Config.ntpServerName,ServerName,sizeof(Config.ntpServerName) );
-  NTP.setNtpServerName ( (char*)Config.ntpServerName );
+void NTP_Client::SetServerName( String ServerName ){
+  strncpy((char*)Config.ntpServerName,ServerName.c_str(),sizeof(Config.ntpServerName) );
+  NTP.setNtpServerName ( ServerName );
 }
 
 /**************************************************************************************************
@@ -104,9 +105,10 @@ void NTP_Client::Sync(){
 void NTP_Client::Tick(){
   if(next_update>0){
     next_update--;
+    Serial.printf("Update in %i Ticks\n\r", next_update);
   } else {
    
-    Sync();
+    _sync=true;
     next_update = Config.SyncIntervall;
   }
   
@@ -169,7 +171,7 @@ void NTP_Client::SetNTPSyncEna( bool Ena){
  *    Remarks       : none
  **************************************************************************************************/
  int32_t NTP_Client::GetSyncInterval( void ){
-  return (  Config.SyncIntervall / 1000 ) ;
+  return (  Config.SyncIntervall / 60) ;
  }
 
 
@@ -182,7 +184,7 @@ void NTP_Client::SetNTPSyncEna( bool Ena){
  *    Remarks       : none
  **************************************************************************************************/
  void NTP_Client::SetSyncInterval( int32_t Sync){
-  Config.SyncIntervall=( Sync * 1000 );
+  Config.SyncIntervall=( Sync * 60 );
  }
 
  /**************************************************************************************************
@@ -228,6 +230,23 @@ void NTP_Client::ReadSettings(){
   
 
 }
+
+ /**************************************************************************************************
+ *    Function      : Task
+ *    Class         : NTP_Client
+ *    Description   : This will trigger a sync
+ *    Input         : none 
+ *    Output        : none
+ *    Remarks       : to avoid problems within isr's
+ **************************************************************************************************/
+void NTP_Client::Task(){
+    if(_sync!=false){
+        Serial.println("Do NTP Sync in Task");
+         Sync();
+         _sync=false;
+    }
+}
+
 
 
 

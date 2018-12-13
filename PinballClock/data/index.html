@@ -589,6 +589,7 @@
                         <tr>
                         <td>
                         <fieldset>
+                        <legend>Sleepmode</legend>
                          <input type="checkbox" id="Enable Nightmode" name="24hmode" value="1">
                          <label class="label" for="Enable Nightmode">Silentmode Enable</label>
                          <br>
@@ -604,6 +605,22 @@
                         
                         </td>
                         </tr>
+                        <tr>
+                            <td>
+                            <fieldset>
+                            <legend>Display / Bell(s) ON-OFF</legend>
+                             <input type="checkbox" id="Disable Display" name="display_off" value="1">
+                             <label class="label" for="Disable Display">Disable Display</label>
+                             <br>
+                             <input type="checkbox" id="Disable Bell" name="bell_off" value="1">
+                             <label class="label" for="Disable Bell">Disable Bell(s)</label>
+                             <br>
+                             <br>
+                             <button type="button" onclick="SendDisplayGlobalDisable(); return false;">Submit</button>
+                            </fieldset>
+                            
+                            </td>
+                            </tr>
                     </form>
                      </tbody>
                      </table>
@@ -996,6 +1013,25 @@
             sendData(url,data); 
         
         }
+
+        function SendDisplayGlobalDisable(){
+            var protocol = location.protocol;
+            var slashes = protocol.concat("//");
+            var host = slashes.concat(window.location.hostname);
+            var url = host + "/display/display_bell_off";  
+           
+            var display_off = document.getElementById("Disable Display").checked;
+            var bell_off = document.getElementById("Disable Bell").checked;
+
+            var data = [];
+            data.push({key:"display_off",
+                       value: display_off});
+            data.push({key:"bell_off",
+                       value: bell_off});
+                       
+            sendData(url,data); 
+        
+        }
         
         function SendSleepMode(){
         var protocol = location.protocol;
@@ -1077,6 +1113,9 @@
         
              var jsonObj = JSON.parse(msg);
              
+
+             var display_off = jsonObj.disp_off;
+             var bell_off = jsonObj.bell_off;
              var wz=jsonObj.wz;
              var tm=jsonObj.tm;
              var dm=jsonObj.dm;
@@ -1117,6 +1156,10 @@
             
             var element = document.getElementById("Timemode");
             element.value = tm;
+            
+            document.getElementById("Disable Display").checked =display_off;
+            
+            document.getElementById("Disable Bell").checked =bell_off;
             
         
         }

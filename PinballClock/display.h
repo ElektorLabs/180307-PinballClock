@@ -38,6 +38,8 @@ typedef struct{
   display_timemode_t tm;
   display_datemode_t dm;
   bool sleepmode_ena;
+  bool disp_off;
+  bool bell_off;
   sleepmode_span_t sts;
 } display_config_t;
 
@@ -120,6 +122,23 @@ void SetDateTimeMode(display_timemode_t t, display_datemode_t d);
  **************************************************************************************************/
 void SetSleepMode(bool Ena);
 
+/**************************************************************************************************
+ *    Function      : SetDisplayOff
+ *    Description   : Disable or Enable the Display 
+ *    Input         : bool Off
+ *    Output        : none
+ *    Remarks       : none
+ **************************************************************************************************/
+void SetDisplayOff(bool Off);
+
+/**************************************************************************************************
+ *    Function      : SetBellOff
+ *    Description   : Disable or Enable the Bells
+ *    Input         : bool Ena
+ *    Output        : none
+ *    Remarks       : none
+ **************************************************************************************************/
+void SetBellOff(bool Off);
 
 /**************************************************************************************************
  *    Function      : SetSleepTimeSpan

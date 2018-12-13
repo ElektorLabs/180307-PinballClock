@@ -100,6 +100,8 @@ void Timecore::Task( void ){
  } 
  
  d=dn; 
+
+
 }
 
 
@@ -613,13 +615,12 @@ time_t Timecore::GetLocalTime( void )
       dstYear=year;
       dstStart = calcTime(&ZoneTable[local_config.TimeZone].StartRule);
       dstEnd = calcTime(&ZoneTable[local_config.TimeZone].EndRule);
-      /*  
+       
       Serial.println("\nDST Rules Updated:");
       Serial.print("DST Start: ");
       Serial.print(ctime(&dstStart));
       Serial.print("DST End:   ");
       Serial.println(ctime(&dstEnd));
-      */
       northTZ = (dstEnd>dstStart)?1:0; // Northern or Southern hemisphere TZ?
   }
    

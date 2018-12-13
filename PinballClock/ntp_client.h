@@ -25,7 +25,7 @@ class NTP_Client {
          *    Output        : none
          *    Remarks       : none
          **************************************************************************************************/
-        void SetServerName( char* ntpServerName );
+        void SetServerName( String ntpServerName );
         
        /**************************************************************************************************
        *    Function      : GetServerName
@@ -127,6 +127,17 @@ class NTP_Client {
          *    Remarks       : If the result is deliverd delayed it sets the pointed bool to true
          **************************************************************************************************/
         void ReadSettings( void );
+
+         /**************************************************************************************************
+         *    Function      : Task
+         *    Class         : NTP_Client
+         *    Description   : This will trigger a sync
+         *    Input         : none 
+         *    Output        : none
+         *    Remarks       : to avoid problems within isr's
+         **************************************************************************************************/
+        void Task( void );
+
     private:
     /**************************************************************************************************
      *    Function      : SyncEvent
@@ -140,7 +151,8 @@ class NTP_Client {
        
     Timecore* timeptr = NULL;
     volatile ntp_config_t Config;
-    int32_t next_update=60; 
+    volatile int32_t next_update=60;
+    volatile bool _sync=false; 
 
 };
  #endif

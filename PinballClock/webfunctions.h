@@ -126,4 +126,13 @@ void read_notes();
 *    Remarks       : none
 **************************************************************************************************/
 void display_ring_bell(void);
+
+/**************************************************************************************************
+*    Function      : update_notes
+*    Description   : Parses POST for global display or bell off
+*    Input         : none
+*    Output        : none
+*    Remarks       : none
+**************************************************************************************************/ 
+void update_display_bell_off( void );
 #endif

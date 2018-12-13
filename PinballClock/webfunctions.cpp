@@ -138,8 +138,6 @@ void settime_update( ){ /* needs to process date and time */
 **************************************************************************************************/ 
 void ntp_settings_update( ){ /* needs to process NTP_ON, NTPServerName and NTP_UPDTAE_SPAN */
 
-
-
   if( ! server->hasArg("NTP_ON") || server->arg("NTP_ON") == NULL ) { // If the POST request doesn't have username and password data
     NTPC.SetNTPSyncEna(false);  
   } else {
@@ -149,7 +147,7 @@ void ntp_settings_update( ){ /* needs to process NTP_ON, NTPServerName and NTP_U
   if( ! server->hasArg("NTPServerName") || server->arg("NTPServerName") == NULL ) { // If the POST request doesn't have username and password data
       
   } else {
-    strncpy( NTPC.GetServerName(), server->arg("NTPServerName").c_str(),129);
+     NTPC.SetServerName( server->arg("NTPServerName") );
   }
 
   if( ! server->hasArg("ntp_update_delta") || server->arg("ntp_update_delta") == NULL ) { // If the POST request doesn't have username and password data
@@ -441,6 +439,45 @@ void update_display_sleepmode(){
   server->send(200);    
 }
 
+/**************************************************************************************************
+*    Function      : update_notes
+*    Description   : Parses POST for global display or bell off
+*    Input         : none
+*    Output        : none
+*    Remarks       : none
+**************************************************************************************************/ 
+void update_display_bell_off()
+{
+  bool bell_off = false;
+  bool display_off = false;
+  if( ! server->hasArg("bell_off") || server->arg("bell_off") == NULL ) { 
+    /* no data in it */
+  } else {
+    if(server->arg("bell_off") == "true"){
+      bell_off = true;
+    } else {
+      bell_off = false;
+    }
+    
+  }
+  
+  if( ! server->hasArg("display_off") || server->arg("display_off") == NULL ) { 
+    /* no data in it */
+  } else {
+    if(server->arg("display_off") == "true"){
+      display_off = true;
+    } else {
+      display_off = false;
+    }
+    
+  }
+
+  SetDisplayOff(display_off);
+  SetBellOff(bell_off);
+  Display_SaveSettings();
+  server->send(200);
+  
+}
 
 /**************************************************************************************************
 *    Function      : update_notes
@@ -509,10 +546,12 @@ void display_readstatus(){
   display_config_t dconf = GetCurrentConfig( );
   ws=GetWheelStatus(0);
   
-  const size_t bufferSize = JSON_ARRAY_SIZE(4) + 4*JSON_OBJECT_SIZE(2) + 2*JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(7);
+  const size_t bufferSize = JSON_ARRAY_SIZE(4) + 4*JSON_OBJECT_SIZE(2) + 2*JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(7)+JSON_OBJECT_SIZE(4);
   DynamicJsonBuffer jsonBuffer(bufferSize);
   
   JsonObject& root = jsonBuffer.createObject();
+  root["disp_off"]= (bool)(dconf.disp_off);
+  root["bell_off"]= (bool)(dconf.bell_off);
   root["wz"] = (uint32_t)(dconf.wz);
   root["slena"] = dconf.sleepmode_ena;
   root["tm"] = (uint32_t)(dconf.tm);
@@ -548,7 +587,7 @@ void display_readstatus(){
   JsonObject& wheels_3 = wheels.createNestedObject();
   wheels_3["position"] = ws.wheelposition;
   wheels_3["fault"] = ws.fault;
-    
+   
   root.printTo(response);
   sendData(response);    
 
