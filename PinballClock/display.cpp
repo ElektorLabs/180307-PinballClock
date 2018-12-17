@@ -274,6 +274,23 @@ static uint16_t delay_ms=0;
  WheelFaultLED();
 }
 
+
+/**************************************************************************************************
+ *    Function      : display_fault_led
+ *    Description   : set or clear the fault led
+ *    Input         : bool active
+ *    Output        : none
+ *    Remarks       : none
+ **************************************************************************************************/
+void display_fault_led( bool active ){
+  if(active==true){
+      mcp.digitalWrite( FAULT_LED ,HIGH);
+    } else {
+      mcp.digitalWrite( FAULT_LED ,LOW);    
+  }
+}
+
+
 /**************************************************************************************************
  *    Function      : bell_fsm
  *    Description   : FSM for the bells, need to be called every 10ms
@@ -639,11 +656,7 @@ void WheelFaultLED(){
         fault = true;  
       }
     }
-    if(fault==true){
-      mcp.digitalWrite( FAULT_LED ,HIGH);
-    } else {
-      mcp.digitalWrite( FAULT_LED ,LOW);    
-  }
+    display_fault_led(fault);
 }
 
 /**************************************************************************************************

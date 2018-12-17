@@ -14,39 +14,11 @@
  #define SECS_PER_DAY  (SECS_PER_HOUR * 24)
  #define weekday(t) (((t / SECS_PER_DAY) + 4) % 7)
 
- //convenient constants for dstRules
- enum week_t {Last, First, Second, Third, Fourth}; 
- enum dow_t {Sun=0, Mon, Tue, Wed, Thu, Fri, Sat};
- enum month_t {Jan=0, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec};
 
- //structure to describe rules for when daylight/summer time begins, or when standard time begins.
- struct dstRule
-  {
-   uint8_t week;      //First, Second, Third, Fourth, or Last week of the month
-   uint8_t dow;       //day of week, 0=Sun, 1=Mon, ... 6=Sat
-   uint8_t month;     //0=Jan, 1=Feb, ... 11=Dec
-   uint8_t hour;      //0-23
-   uint8_t minute;    //0-59
-   int offset;        //offset from Standard Time in seconds
- };
-  
-  typedef struct {
-    timezoneenum_t Zone;
-    struct dstRule StartRule;
-    struct dstRule EndRule;  
-  } dls_timezone_t;
-
- typedef struct {
-    timezoneenum_t Zone;
-    int32_t Offset;
-    bool has_dls;
-    struct dstRule StartRule;
-    struct dstRule EndRule;  
-  } timezone_t;
 
 
 /* needs to go to flash */
-timezone_t ZoneTable[TIMEZONEENUM_CNT] ={
+const timezone_t ZoneTable[TIMEZONEENUM_CNT] PROGMEM  ={
 [Africa_Abidjan]={.Zone=GMT, .Offset = CONVTIME(0,0,0), .has_dls=false, .StartRule={ First, Sun, Jan, 0, 0}, .EndRule={ First, Sun, Jan, 0, 0,0}},
 [Africa_Accra]={.Zone=GMT, .Offset = CONVTIME(0,0,0), .has_dls=false, .StartRule={ First, Sun, Jan, 0, 0}, .EndRule={ First, Sun, Jan, 0, 0,0}},
 [Africa_Addis_Ababa]={.Zone=EAT, .Offset = CONVTIME(3,0,0), .has_dls=false, .StartRule={ First, Sun, Jan, 0, 0}, .EndRule={ First, Sun, Jan, 0, 0,0}},

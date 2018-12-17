@@ -159,6 +159,15 @@ void SetSleepTimeSpan(sleepmode_span_t tspan);
 display_config_t GetCurrentConfig(void );
 
 /**************************************************************************************************
+ *    Function      : display_fault_led
+ *    Description   : set or clear the fault led
+ *    Input         : bool active
+ *    Output        : none
+ *    Remarks       : none
+ **************************************************************************************************/
+void display_fault_led( bool active );
+
+/**************************************************************************************************
  *    Function      : GetWheelStatus
  *    Description   : Gets the Wheelstatus of one wheel 
  *    Input         : none
@@ -211,6 +220,8 @@ void wheel_fsm( void );
  *    Remarks       : none
  **************************************************************************************************/
 void bell_fsm( void );
+
+
 
 #endif
 

@@ -140,13 +140,16 @@ void setup()
   Serial.println(F("Init Wheels"));   
   InitDisplay();
   yield();
+  /* Now we start with the config for the Timekeeping and sync */
+  TimeKeeper.attach_ms(10, callback);
+  /* We set the display to zero */
+  SetupDisplay();
   /* Now we deal with the WiFi */
   u8x8log.print(F("Init WiFi\n\r"));
   Serial.println(F("Init WiFi"));   
   initWiFi();
   yield();
-  /* Now we start with the config for the Timekeeping and sync */
-  TimeKeeper.attach_ms(10, callback);
+  
   /* We read the Config from flash */
   Serial.println(F("Read Timecore Config"));
   timecoreconf_t cfg = read_timecoreconf();
@@ -194,8 +197,6 @@ void setup()
   NTPC.Sync();
   yield();
   ws_service_begin();
-  /* We are done now and show the inital content for the display(s) */
-  SetupDisplay();
   ShowNetworkStatus();
 
 }

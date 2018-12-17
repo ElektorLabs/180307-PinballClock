@@ -12,6 +12,7 @@
  **************************************************************************************************/
  Timecore::Timecore(){
   local_config = GetConfig();
+  LoadTimezone(local_config.TimeZone);
  };
 
  /**************************************************************************************************
@@ -153,6 +154,7 @@ datum_t Timecore::ConvertToDatum( uint32_t timestamp ){
 void Timecore::SetConfig(timecoreconf_t conf){
   Serial.println("Copy Conf to MEM");
   memcpy(&local_config,&conf,sizeof(timecoreconf_t));
+  LoadTimezone(local_config.TimeZone);
 }
 
 
@@ -445,6 +447,7 @@ void Timecore::SetTimeZoneManual( bool ena){
 void Timecore::SetTimeZone(TIMEZONES_NAMES_t Zone ) {
 /* we need to load the basic parameter to the core */
   local_config.TimeZone = Zone;
+  LoadTimezone(Zone);
   dstYear = 0;
 }
 
@@ -469,7 +472,7 @@ void Timecore::SetLocalTime( datum_t d){
  if(local_config.TimeZoneOverride==true){
    localtimestamp = localtimestamp-(local_config.GMTOffset*60);
  } else {
-  localtimestamp = localtimestamp - ZoneTable[local_config.TimeZone].Offset;
+  localtimestamp = localtimestamp - TimeZoneRam.Offset;
   /* next is to check if we may have dlst */
  }
  
@@ -477,8 +480,8 @@ void Timecore::SetLocalTime( datum_t d){
      {
       Serial.printf("Year: %i", d.year);
       dstYear=d.year+30;
-      dstStart = calcTime(&ZoneTable[local_config.TimeZone].StartRule);
-      dstEnd = calcTime(&ZoneTable[local_config.TimeZone].EndRule);
+      dstStart = calcTime(&TimeZoneRam.StartRule);
+      dstEnd = calcTime(&TimeZoneRam.EndRule);
    
       Serial.println("\nDST Rules Updated:");
       Serial.print("DST Start: ");
@@ -489,7 +492,7 @@ void Timecore::SetLocalTime( datum_t d){
 
   if(local_config.AutomaticDLTS_Ena==true){
     if(northTZ && (localtimestamp >= dstStart && localtimestamp < dstEnd) || !northTZ && (localtimestamp < dstEnd || localtimestamp >= dstStart)){
-      localtimestamp -= ZoneTable[local_config.TimeZone].StartRule.offset;
+      localtimestamp -= TimeZoneRam.StartRule.offset;
       Serial.printf(" Removed DLS Offset  ");
     } else {
       
@@ -558,8 +561,8 @@ time_t Timecore::GetLocalTime( void )
  time_t now = GetUTC();  // Call the original time() function
 // Serial.printf("UTC Time: %i ->",now);
   if(local_config.TimeZoneOverride==false){
-    if(now>ZoneTable[local_config.TimeZone].Offset){
-      now = now + ZoneTable[local_config.TimeZone].Offset;
+    if(now>TimeZoneRam.Offset){
+      now = now + TimeZoneRam.Offset;
    }  
   } else {
     Serial.println("MANOFFSET");
@@ -602,7 +605,7 @@ time_t Timecore::GetLocalTime( void )
  
     
    
-   if(ZoneTable[local_config.TimeZone].has_dls == false ){
+   if(TimeZoneRam.has_dls == false ){
     /* we are done here */  
    } else {
      
@@ -613,8 +616,8 @@ time_t Timecore::GetLocalTime( void )
     if(dstYear!=year)
      {
       dstYear=year;
-      dstStart = calcTime(&ZoneTable[local_config.TimeZone].StartRule);
-      dstEnd = calcTime(&ZoneTable[local_config.TimeZone].EndRule);
+      dstStart = calcTime(&TimeZoneRam.StartRule);
+      dstEnd = calcTime(&TimeZoneRam.EndRule);
        
       Serial.println("\nDST Rules Updated:");
       Serial.print("DST Start: ");
@@ -626,9 +629,9 @@ time_t Timecore::GetLocalTime( void )
    
     if(northTZ && (now >= dstStart && now < dstEnd) || !northTZ && (now < dstEnd || now >= dstStart))
      {
-      //Serial.printf("DLS active with %i offset",ZoneTable[local_config.TimeZone].StartRule.offset);
+      //Serial.printf("DLS active with %i offset",TimeZoneRam.StartRule.offset);
       //Serial.println(ctime(&now));
-      now += ZoneTable[local_config.TimeZone].StartRule.offset;
+      now += TimeZoneRam.StartRule.offset;
       
              
            } 
@@ -832,4 +835,134 @@ const char* Timecore::GetTimeZoneName(TIMEZONES_NAMES_t Zone){
   return TimeZoneNames[Zone];
 }
 */
+
+/**************************************************************************************************
+ *    Function      : LoadTimezone
+ *    Class         : Timecore
+ *    Description   : Helperfunction load the current timezone from FLASH to RAM
+ *    Input         : uint16_t index
+ *    Output        : none
+ *    Remarks       : none
+ **************************************************************************************************/ 
+ void Timecore::LoadTimezone( uint16_t index){
+  if(index>=TIMEZONEENUM_CNT){
+    index=0;
+  }
+  bzero(&TimeZoneRam, sizeof( timezone_t ) );
+  /* Fetch the data from Flash */
+  uint8_t* base_addr = (uint8_t*)(&ZoneTable[index]);
+  uint8_t* dest_addr = (uint8_t*)(&TimeZoneRam);
+  for(uint32_t i=0;i<sizeof( timezone_t );i++){
+    *dest_addr = pgm_read_byte(base_addr + i);
+    dest_addr++;
+  }
+  /* Debugparameter for the loaded timezone */
+  /*
+  timezoneenum_t Zone;
+  int32_t Offset;
+  bool has_dls;
+  struct dstRule StartRule;
+  struct dstRule EndRule;  
+  */
+
+  /*
+   uint8_t week;      //First, Second, Third, Fourth, or Last week of the month
+   uint8_t dow;       //day of week, 0=Sun, 1=Mon, ... 6=Sat
+   uint8_t month;     //0=Jan, 1=Feb, ... 11=Dec
+   uint8_t hour;      //0-23
+   uint8_t minute;    //0-59
+
+   * 
+   */
+  Serial.println("__________________________________________________");
+  Serial.printf("Loaded Timzonetype: %i \n\r", index);
+  Serial.printf("Loaded Timzonetype: %i \n\r", TimeZoneRam.Zone);
+  Serial.printf("GMT Offset: %i\n\r",TimeZoneRam.Offset);
+  if(TimeZoneRam.has_dls == false ) {
+    Serial.println("Daylight saving is false");
+  } else {
+    Serial.println("Daylight saving is true");
+  }
+  Serial.println("---   Start Rule  ---");
+  switch(TimeZoneRam.StartRule.week){
+   case First:{ Serial.print("First Week ");} break;
+    case Second:{ Serial.print("Second Week");} break;
+    case Third:{ Serial.print("Third Week");} break;
+    case Fourth:{ Serial.print("Fourth Week");} break;
+    case Last:{ Serial.print("Last Week");} break;
+    default:{ Serial.printf(" Bad Value: %i", TimeZoneRam.StartRule.week);} break;
+  }
+
+  switch(TimeZoneRam.StartRule.dow){
+    case 0:{ Serial.print(" - Sunday");} break;
+    case 1:{ Serial.print(" - Monday");} break;
+    case 2:{ Serial.print(" - Tuseday");} break;
+    case 3:{ Serial.print(" - Wednesday");} break;
+    case 4:{ Serial.print(" - Thursday");} break;
+    case 5:{ Serial.print(" - Friday");} break;
+    case 6:{ Serial.print(" - Saturday");} break;
+    default:{ Serial.printf(" - Bad Value: %i", TimeZoneRam.StartRule.week);} break;
+  }
+
+  switch(TimeZoneRam.StartRule.month){
+    case 0:{ Serial.print(" - Jan");} break;
+    case 1:{ Serial.print(" - Feb");} break;
+    case 2:{ Serial.print(" - Mar");} break;
+    case 3:{ Serial.print(" - Apr");} break;
+    case 4:{ Serial.print(" - Mai");} break;
+    case 5:{ Serial.print(" - Jun");} break;
+    case 6:{ Serial.print(" - Jul");} break;
+    case 7:{ Serial.print(" - Aug");} break;
+    case 8:{ Serial.print(" - Sep");} break;
+    case 9:{ Serial.print(" - Oct");} break;
+    case 10:{ Serial.print(" - Nov");} break;
+    case 11:{ Serial.print(" - Dec");} break;
+    default:{ Serial.printf(" - Bad Value: %i", TimeZoneRam.StartRule.week);} break;
+  }
+
+  Serial.printf(" -  %02d :  %02d \r\n",TimeZoneRam.StartRule.hour, TimeZoneRam.StartRule.minute);
+
+  Serial.println("---   End Rule  ---");
+  switch(TimeZoneRam.EndRule.week){
+    case First:{ Serial.print("First Week ");} break;
+    case Second:{ Serial.print("Second Week");} break;
+    case Third:{ Serial.print("Third Week");} break;
+    case Fourth:{ Serial.print("Fourth Week");} break;
+    case Last:{ Serial.print("Last Week");} break;
+    default:{ Serial.printf(" Bad Value: %i", TimeZoneRam.StartRule.week);} break;
+  }
+
+  switch(TimeZoneRam.EndRule.dow){
+    case 0:{ Serial.print(" - Sunday");} break;
+    case 1:{ Serial.print(" - Monday");} break;
+    case 2:{ Serial.print(" - Tuseday");} break;
+    case 3:{ Serial.print(" - Wednesday");} break;
+    case 4:{ Serial.print(" - Thursday");} break;
+    case 5:{ Serial.print(" - Friday");} break;
+    case 6:{ Serial.print(" - Saturday");} break;
+    default:{ Serial.printf(" - Bad Value: %i", TimeZoneRam.StartRule.week);} break;
+  }
+
+  switch(TimeZoneRam.EndRule.month){
+    case 0:{ Serial.print(" - Jan");} break;
+    case 1:{ Serial.print(" - Feb");} break;
+    case 2:{ Serial.print(" - Mar");} break;
+    case 3:{ Serial.print(" - Apr");} break;
+    case 4:{ Serial.print(" - Mai");} break;
+    case 5:{ Serial.print(" - Jun");} break;
+    case 6:{ Serial.print(" - Jul");} break;
+    case 7:{ Serial.print(" - Aug");} break;
+    case 8:{ Serial.print(" - Sep");} break;
+    case 9:{ Serial.print(" - Oct");} break;
+    case 10:{ Serial.print(" - Nov");} break;
+    case 11:{ Serial.print(" - Dec");} break;
+    default:{ Serial.printf(" - Bad Value: %i", TimeZoneRam.StartRule.week);} break;
+  }
+
+  Serial.printf(" -  %02d :  %02d \r\n",TimeZoneRam.EndRule.hour, TimeZoneRam.EndRule.minute);
+  
+  
+  
+ 
+ }
 

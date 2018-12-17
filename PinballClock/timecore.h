@@ -396,6 +396,7 @@ class Timecore {
     
     private:
         timecoreconf_t local_config; 
+        timezone_t TimeZoneRam;
         uint8_t dstYear;
         time_t dstStart;  // Start of DST in specific Year (seconds since 1970)
         time_t dstEnd;    // End of DST in listed Year (seconds since 1970)
@@ -454,6 +455,16 @@ class Timecore {
        *    Remarks       : none
        **************************************************************************************************/
         uint32_t TimeStructToTimeStamp(datum_t time);
+
+      /**************************************************************************************************
+       *    Function      : LoadTimezone
+       *    Class         : Timecore
+       *    Description   : Helperfunction load the current timezone from FLASH to RAM
+       *    Input         : uint16_t index
+       *    Output        : none
+       *    Remarks       : none
+       **************************************************************************************************/ 
+       void LoadTimezone( uint16_t index);
      
 };
 
