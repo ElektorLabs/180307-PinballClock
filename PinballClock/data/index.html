@@ -544,7 +544,7 @@
                         <option value="1">4" (125ms)</option> 
                         <option value="2">5" (150ms)</option> 
                         <option value="3">6" (175ms)</option>                         
-                       
+                        
                         </select>
                         <br>
                         <button type="button" onclick="SendWhellSize(); return false;">Submit</button>
@@ -561,7 +561,8 @@
                         <label class="label" id="w2fault">Wheel 2 fault</label><br>
                         <label class="label" id="w3fault">Wheel 3 fault</label><br>
                         <label class="label" id="w4fault">Wheel 4 fault</label><br>
-                        
+                        <br>
+                        <button type="button" onclick="ResetWheels(); return false;">Reset Wheels</button>      
                         </td>
                         </tr>
                 </form>
@@ -1211,6 +1212,14 @@
         
         }
         
+        function ResetWheels(){
+            var protocol = location.protocol;
+            var slashes = protocol.concat("//");
+            var host = slashes.concat(window.location.hostname);
+            var url = host + "/display/resetdisplay";
+            httpGetAsync(url,null);
+        }
+        
         function LoadNotes(){
             sendRequest("notes.dat", read_notes);
         
@@ -1221,6 +1230,19 @@
             var element = document.getElementById("Notes");
             element.value = msg;
             
+        }
+        
+        function httpGetAsync(theUrl, callback)
+        {
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.onreadystatechange = function() { 
+                if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+                if(callback != null){
+                    callback(xmlHttp.responseText);
+                }
+            }
+            xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+            xmlHttp.send(null);
         }
         
         function sendData(url,data) {       

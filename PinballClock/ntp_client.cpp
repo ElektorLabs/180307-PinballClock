@@ -105,7 +105,7 @@ void NTP_Client::Sync(){
 void NTP_Client::Tick(){
   if(next_update>0){
     next_update--;
-    Serial.printf("Update in %i Ticks\n\r", next_update);
+    //Serial.printf("Update in %i Ticks\n\r", next_update);
   } else {
    
     _sync=true;
@@ -241,7 +241,7 @@ void NTP_Client::ReadSettings(){
  **************************************************************************************************/
 void NTP_Client::Task(){
     if(_sync!=false){
-        Serial.println("Do NTP Sync in Task");
+        //Serial.println("Do NTP Sync in Task");
          Sync();
          _sync=false;
     }
