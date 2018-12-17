@@ -6,11 +6,12 @@ Software for the Pinball Clock for 180307
 ## Getting Started
 
 To compile the code you need to include some libarys
-- RTCLib by Adafruit
+RTCLib by Adafruit
 - MCP23008 by Adafruit
-- TimelLib (Arduino Core)
+- Time by Michael Margolis ( Arduino )
+- ESPAsyncUDP form https://github.com/me-no-dev/ESPAsyncUDP 
 - Arduino JSON 5.x
-- WebSockets by Mrkus Sattler 
+- CRC32 by Christopher Baker 
 - NtpClientLib form https://github.com/gmag11/NtpClient/tree/AsyncUDP ( use the AsyncUDP branch )
 - U8G2
 

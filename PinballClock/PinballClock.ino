@@ -3,8 +3,10 @@
  * to compile the code you need to include some libarys
  * RTCLib by Adafruit
  * MCP23008 by Adafruit
- * TimelLib (Arduino Core)
+ * Time by Michael Margolis ( Arduino )
+ * ESPAsyncUDP form https://github.com/me-no-dev/ESPAsyncUDP 
  * Arduino JSON 5.x
+ * CRC32 by Christopher Baker 
  * NtpClientLib form https://github.com/gmag11/NtpClient/tree/AsyncUDP ( use the AsyncUDP branch )
  * 
  * Hardware used: ESP8266 ( 12E ) on PCB of 180307
