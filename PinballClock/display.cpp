@@ -106,6 +106,23 @@ static uint16_t newADC=0;
 static uint8_t WheelIDX=0;
 static uint8_t pulsecounter=0;
 static uint16_t delay_ms=0;
+static uint32_t last_call = 0;
+/* this is to avoid to fast callbacks due to the os_timer nature invoking this */
+uint32_t time_ms = millis();
+uint32_t delta = 0;
+if(last_call > time_ms ){
+  delta = ( UINT32_MAX - last_call ) + time_ms;
+} else {
+  delta = last_call - time_ms;
+}
+if(delta<8){
+  Serial.print("Skip Wheels FSM ");
+  return;
+} else {
+  last_call = time_ms;
+}
+
+  
   switch( state ){
 
   case idle:{
@@ -116,7 +133,7 @@ static uint16_t delay_ms=0;
       
         WheelIDX=i;
         state = start_set_zero;
-        Serial.printf("Set Wheel %u to Zero\n\r",WheelIDX);
+        //Serial.printf("Set Wheel %u to Zero\n\r",WheelIDX);
         return; /* not nice */
       } 
     }
@@ -125,7 +142,7 @@ static uint16_t delay_ms=0;
       if(  (current_wheel_position[i]<254 )&& ( (current_wheel_position[i]!=wheel_position[i] ) )  ){  
         WheelIDX=i;
         state = start_wheelmove;
-        Serial.printf("Move Wheel %u one step, current position: %i, target: %i \n\r",WheelIDX,current_wheel_position[i],wheel_position[i] );
+        //Serial.printf("Move Wheel %u one step, current position: %i, target: %i \n\r",WheelIDX,current_wheel_position[i],wheel_position[i] );
         return;
       }
     } 
@@ -159,7 +176,7 @@ static uint16_t delay_ms=0;
   } break;
 
   case zero_pulse_high_wait:{
-    Serial.println("szphw");
+    //Serial.println("szphw");
     if(delay_ms>0){
       delay_ms--;
     } else {
@@ -206,11 +223,11 @@ static uint16_t delay_ms=0;
       /* we reached zero or moved 12 times */
       if(pulsecounter>=20){
         current_wheel_position[WheelIDX]=255; /* Broken */
-        Serial.printf("Wheel %i is broken\r\n",WheelIDX);
+        //Serial.printf("Wheel %i is broken\r\n",WheelIDX);
       } else {
         wheel_zero[WheelIDX]=0;  
         current_wheel_position[WheelIDX]=0; /* Okay */
-        Serial.printf("Have Wheel %i at Zero\n\r",WheelIDX);
+        //Serial.printf("Have Wheel %i at Zero\n\r",WheelIDX);
       }
       state = idle;
       
@@ -220,7 +237,7 @@ static uint16_t delay_ms=0;
 
  
  case start_wheelmove:{
-    Serial.println("swm");
+    //Serial.println("swm");
     mcp.digitalWrite(reels[WheelIDX],HIGH);
     delay_ms = wheeltimings[local_config.wz].pulseduration;
     if(delay_ms % 10 != 0){
@@ -240,7 +257,7 @@ static uint16_t delay_ms=0;
  } break;
  
  case wheelmove_pulse_high_wait:{
-  Serial.println("swmhw");
+  //Serial.println("swmhw");
   if(delay_ms>0){
       delay_ms--;
     } else {
@@ -288,7 +305,7 @@ static uint16_t delay_ms=0;
  } break;
 
   default:{
-    Serial.println("fsm_err");
+    //Serial.println("fsm_err");
     state = idle;
   }
 
@@ -325,6 +342,22 @@ void bell_fsm( void ){
 static fsm_state_t state=idle;
 static uint8_t BellIDX=0;
 static uint16_t delay_ms=0;
+static uint32_t last_call = 0;
+/* this is to avoid to fast callbacks due to the os_timer nature invoking this */
+uint32_t time_ms = millis();
+uint32_t delta = 0;
+if(last_call > time_ms ){
+  delta = ( UINT32_MAX - last_call ) + time_ms;
+} else {
+  delta = last_call - time_ms;
+}
+if(delta<8){
+  Serial.print("Skip Bell FSM ");
+  return;
+} else {
+  last_call = time_ms;
+}
+
   switch( state ){
 
   case idle:{
@@ -333,7 +366,7 @@ static uint16_t delay_ms=0;
       if(  bell_ring[i] != 0 ){  
         BellIDX=i;
         state = start_bell;
-          Serial.printf("Ring Bell %u , value %u\n\r",BellIDX,bell_ring[i]);
+          //Serial.printf("Ring Bell %u , value %u\n\r",BellIDX,bell_ring[i]);
         return;
       }
     }
@@ -429,7 +462,7 @@ static uint16_t delay_ms=0;
  } break;
 
   default:{
-    Serial.println("fsm_err");
+    //Serial.println("fsm_err");
     state = idle;
   }
 
