@@ -874,6 +874,7 @@ const char* Timecore::GetTimeZoneName(TIMEZONES_NAMES_t Zone){
 
    * 
    */
+   /*
   Serial.println("__________________________________________________");
   Serial.printf("Loaded Timzonetype: %i \n\r", index);
   Serial.printf("Loaded Timzonetype: %i \n\r", TimeZoneRam.Zone);
@@ -960,7 +961,7 @@ const char* Timecore::GetTimeZoneName(TIMEZONES_NAMES_t Zone){
   }
 
   Serial.printf(" -  %02d :  %02d \r\n",TimeZoneRam.EndRule.hour, TimeZoneRam.EndRule.minute);
-  
+  */
   
   
  

@@ -87,7 +87,7 @@ typedef enum{
  
 }fsm_state_t;
 
-volatile bool fsm_wheel_moving=false;
+
 
 
 
@@ -117,7 +117,6 @@ static uint16_t delay_ms=0;
         WheelIDX=i;
         state = start_set_zero;
         Serial.printf("Set Wheel %u to Zero\n\r",WheelIDX);
-        fsm_wheel_moving=true;   
         return; /* not nice */
       } 
     }
@@ -126,12 +125,10 @@ static uint16_t delay_ms=0;
       if(  (current_wheel_position[i]<254 )&& ( (current_wheel_position[i]!=wheel_position[i] ) )  ){  
         WheelIDX=i;
         state = start_wheelmove;
-          Serial.printf("Move Wheel %u one step\n\r",WheelIDX);
-          fsm_wheel_moving=true;   
+        Serial.printf("Move Wheel %u one step, current position: %i, target: %i \n\r",WheelIDX,current_wheel_position[i],wheel_position[i] );
         return;
       }
     } 
-    fsm_wheel_moving=false;   
   } break;
 
   case start_set_zero:{
@@ -146,7 +143,7 @@ static uint16_t delay_ms=0;
 
   case zero_pulse_high:{
 //    Serial.println("szph");
-    state = zero_pulse_high_wait;
+    mcp.digitalWrite(reels[WheelIDX],HIGH);
     delay_ms = wheeltimings[local_config.wz].pulseduration;
     if(delay_ms % 10 != 0){
       delay_ms = delay_ms / 10 ;
@@ -154,12 +151,15 @@ static uint16_t delay_ms=0;
     } else {
       delay_ms = delay_ms / 10 ;
     }
-    
-     mcp.digitalWrite(reels[WheelIDX],HIGH);
+    if(mcp.digitalRead( reels[WheelIDX] ) != HIGH){
+      mcp.digitalWrite(reels[WheelIDX],HIGH);
+    } else {
+      state = zero_pulse_high_wait;
+    }
   } break;
 
   case zero_pulse_high_wait:{
-//    Serial.println("szphw");
+    Serial.println("szphw");
     if(delay_ms>0){
       delay_ms--;
     } else {
@@ -169,7 +169,8 @@ static uint16_t delay_ms=0;
 
   case zero_pulse_low:{
 //    Serial.println("szpl");
-    state = zero_pulse_low_wait;
+    //state = zero_pulse_low_wait;
+     mcp.digitalWrite(reels[WheelIDX],LOW);
      delay_ms = wheeltimings[local_config.wz].pauseduration;
      if(delay_ms % 10 != 0){
       delay_ms = delay_ms / 10 ;
@@ -177,7 +178,11 @@ static uint16_t delay_ms=0;
     } else {
       delay_ms = delay_ms / 10 ;
     }
+    if(mcp.digitalRead( reels[WheelIDX] ) != LOW){
       mcp.digitalWrite(reels[WheelIDX],LOW);
+    } else {
+      state = zero_pulse_low_wait;
+    }
   } break;
 
   case zero_pulse_low_wait:{
@@ -215,8 +220,8 @@ static uint16_t delay_ms=0;
 
  
  case start_wheelmove:{
-//    Serial.println("swm");
-    state = wheelmove_pulse_high_wait;
+    Serial.println("swm");
+    mcp.digitalWrite(reels[WheelIDX],HIGH);
     delay_ms = wheeltimings[local_config.wz].pulseduration;
     if(delay_ms % 10 != 0){
       delay_ms = delay_ms / 10 ;
@@ -225,11 +230,17 @@ static uint16_t delay_ms=0;
       delay_ms = delay_ms / 10 ;
     }
     
-     mcp.digitalWrite(reels[WheelIDX],HIGH);
+    if(mcp.digitalRead( reels[WheelIDX] ) != HIGH){
+      mcp.digitalWrite(reels[WheelIDX],HIGH);
+    } else {
+      state = wheelmove_pulse_high_wait;
+    }
+
+    
  } break;
  
  case wheelmove_pulse_high_wait:{
-//  Serial.println("swmhw");
+  Serial.println("swmhw");
   if(delay_ms>0){
       delay_ms--;
     } else {
@@ -239,7 +250,9 @@ static uint16_t delay_ms=0;
  
  case wheelmove_pulse_low:{
 //   Serial.println("swml");
-   state = wheelmove_pulse_low_wait;
+//   state = wheelmove_pulse_low_wait;
+     mcp.digitalWrite(reels[WheelIDX],LOW);
+
      delay_ms = wheeltimings[local_config.wz].pauseduration;
      if(delay_ms % 10 != 0){
       delay_ms = delay_ms / 10 ;
@@ -247,7 +260,13 @@ static uint16_t delay_ms=0;
     } else {
       delay_ms = delay_ms / 10 ;
     }
+   if(mcp.digitalRead( reels[WheelIDX] ) != LOW){
       mcp.digitalWrite(reels[WheelIDX],LOW);
+    } else {
+      state = wheelmove_pulse_low_wait;
+    }
+
+ 
  } break;
  
  case wheelmove_pulse_low_wait:{
@@ -335,7 +354,11 @@ static uint16_t delay_ms=0;
   } else {
     delay_ms = delay_ms / 10 ;
   } 
-  state = bell_pulse_high_wait; 
+  if(mcp.digitalRead( bells[BellIDX] ) != HIGH){
+    mcp.digitalWrite(bells[BellIDX],HIGH);
+  } else {
+    state = bell_pulse_high_wait; 
+  }
  } break;
  
  case bell_pulse_high_wait:{
@@ -360,11 +383,16 @@ static uint16_t delay_ms=0;
   } else {
     delay_ms = 30;
   }
+  if(mcp.digitalRead( bells[BellIDX] ) != LOW){
+    mcp.digitalWrite(bells[BellIDX],LOW);
+  } else {
       state = bell_pulse_low_wait;
+  }
   
  } break;
  
  case bell_pulse_low_wait:{
+  
   if(delay_ms>0){
       delay_ms--;
     } else {
@@ -476,13 +504,13 @@ void DisplayTask( void ){
     case show_time:{
       
         if(local_config.tm==_24hour){
-         updateClock(d.hour/10, d.hour%10,d.minute/10,d.minute%10);
+          updateClock(d.hour/10, d.hour%10,d.minute/10,d.minute%10);
         } else {
-        uint8_t _12h = d.hour;
-        if(_12h>12){
-          _12h-=12;        
-        }
-         updateClock(_12h/10, _12h%10,d.minute/10,d.minute%10);
+          uint8_t _12h = d.hour;
+          if(_12h>12){
+            _12h-=12;        
+          }
+          updateClock(_12h/10, _12h%10,d.minute/10,d.minute%10);
         }
          if(GetSleepSpanActive(d)==true){
           disp_state = show_sleepmode;
@@ -882,7 +910,7 @@ wheelstatus_t GetWheelStatus( uint8_t idx){
     } else {
       result.fault=0;
       result.initialized=1;
-      result.wheelposition=(current_wheel_position[idx]&0x0F);
+      result.wheelposition=current_wheel_position[idx];
     }
   }
 
@@ -934,10 +962,6 @@ bool wheel_moving( void ){
     if(w.initialized==0){
      moving = true; 
     }
-  }
-
-  if(true == fsm_wheel_moving){
-    moving = true;
   }
   
   return moving;   
