@@ -87,7 +87,7 @@ typedef enum{
  
 }fsm_state_t;
 
-
+volatile bool fsm_wheel_moving=false;
 
 
 
@@ -117,6 +117,7 @@ static uint16_t delay_ms=0;
         WheelIDX=i;
         state = start_set_zero;
         Serial.printf("Set Wheel %u to Zero\n\r",WheelIDX);
+        fsm_wheel_moving=true;   
         return; /* not nice */
       } 
     }
@@ -126,9 +127,11 @@ static uint16_t delay_ms=0;
         WheelIDX=i;
         state = start_wheelmove;
           Serial.printf("Move Wheel %u one step\n\r",WheelIDX);
+          fsm_wheel_moving=true;   
         return;
       }
-    }    
+    } 
+    fsm_wheel_moving=false;   
   } break;
 
   case start_set_zero:{
@@ -914,5 +917,17 @@ void Display_RingBell( uint8_t idx ){
     }
   }
  }
+}
+
+
+/**************************************************************************************************
+ *    Function      : wheel_moving
+ *    Description   : returns false if the wheels are not moving
+ *    Input         : none
+ *    Output        : bool
+ *    Remarks       : none
+ **************************************************************************************************/
+bool wheel_moving( void ){
+  return fsm_wheel_moving;   
 }
 

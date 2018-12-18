@@ -204,6 +204,15 @@ void Display_SaveSettings( void );
 void Display_RingBell( uint8_t idx );
 
 /**************************************************************************************************
+ *    Function      : wheel_moving()
+ *    Description   : returns false if the wheels are not moving
+ *    Input         : none
+ *    Output        : bool
+ *    Remarks       : none
+ **************************************************************************************************/
+bool wheel_moving( void );
+
+/**************************************************************************************************
  *    Function      : wheel_fsm
  *    Description   : FSM for the wheels, need to be called every 10ms
  *    Input         : none

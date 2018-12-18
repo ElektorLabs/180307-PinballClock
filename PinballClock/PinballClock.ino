@@ -111,18 +111,28 @@ void setup()
   datastoresetup();
   /* This is for the flash file system to access the webcontent */
   SPIFFS.begin();
-  /* this it the FLASH in later used for the EEPOM erase */
-  pinMode( 0, INPUT);
+
+  SetupDisplay();
+  /* Now we start with the config for the Timekeeping and sync */
+  TimeKeeper.attach_ms(10, callback);
+  /* We set the display to zero */
+  
   /* We now setup the OLED on the I2C Bus, not neede to be connected */
   oled.begin();
   oled.setFont(u8x8_font_chroma48medium8_r);
   /* And here also the "Terminal" to log messages, ugly but working */
   u8x8log.begin(oled, U8LOG_WIDTH, U8LOG_HEIGHT, u8log_buffer);
   u8x8log.setRedrawMode(1); // 0: Update screen with newline, 1: Update screen for every char  
-
-  /* Show some live on the debug output */
   Serial.println(F("Booting..."));
   u8x8log.print(F("Booting..\n\r"));
+  InitDisplay();
+  yield();
+  /* Next is to deal with the wheels */
+  u8x8log.print(F("Init Wheels\n\r"));
+  Serial.println(F("Init Wheels"));
+  /* this it the FLASH in later used for the EEPOM erase */
+  pinMode( 0, INPUT);
+  /* Show some live on the debug output */
   /* We wait for 2.5 seconds and then read the button */
   for(uint32_t i=0;i<2500;i++){
     yield();
@@ -135,16 +145,13 @@ void setup()
   
     erase_eeprom();  
   }
-  /* Next is to deal with the wheels */
-  u8x8log.print(F("Init Wheels\n\r"));
-  Serial.println(F("Init Wheels"));   
-  InitDisplay();
-  yield();
-  /* Now we start with the config for the Timekeeping and sync */
-  TimeKeeper.attach_ms(10, callback);
-  /* We set the display to zero */
-  SetupDisplay();
+   
+  
+
   /* Now we deal with the WiFi */
+  while(wheel_moving()==true){
+    yield();
+  }
   u8x8log.print(F("Init WiFi\n\r"));
   Serial.println(F("Init WiFi"));   
   initWiFi();
