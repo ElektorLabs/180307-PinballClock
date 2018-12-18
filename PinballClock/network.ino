@@ -292,7 +292,8 @@ void configureSoftAP() {
   IsAP=true;
   Serial.println("Configuring AP: " + String(APSSID));
   u8x8log.print("Conf.AP: " + String(APSSID )+"\n\r");
-  
+
+  WiFi.softAPConfig(IPAddress(192, 168, 4, 1), IPAddress(192, 168, 4, 1), IPAddress(255, 255, 255, 0));
   WiFi.softAP(APSSID.c_str(), NULL, 1, 0, 1);
   delay(500); 
   ip = WiFi.softAPIP();

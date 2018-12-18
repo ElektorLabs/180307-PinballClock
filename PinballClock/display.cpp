@@ -928,6 +928,18 @@ void Display_RingBell( uint8_t idx ){
  *    Remarks       : none
  **************************************************************************************************/
 bool wheel_moving( void ){
-  return fsm_wheel_moving;   
+  bool moving = false;
+  for(uint32_t i=0;i<4;i++){
+  wheelstatus_t w = GetWheelStatus( i ); 
+    if(w.initialized==0){
+     moving = true; 
+    }
+  }
+
+  if(true == fsm_wheel_moving){
+    moving = true;
+  }
+  
+  return moving;   
 }
 
