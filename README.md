@@ -12,7 +12,7 @@ RTCLib by Adafruit
 - ESPAsyncUDP form https://github.com/me-no-dev/ESPAsyncUDP 
 - Arduino JSON 5.x
 - CRC32 by Christopher Baker 
-- NtpClientLib form https://github.com/gmag11/NtpClient/tree/AsyncUDP ( use the AsyncUDP branch )
+- NtpClientLib form https://github.com/gmag11/NtpClient/ 
 - U8G2
 
 Upload the Code and the Webcontent to the EPS8266

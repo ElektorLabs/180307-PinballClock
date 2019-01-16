@@ -99,7 +99,7 @@
 
                         <form action="timezone.dat"  method="post">
                          <fieldset>
-                          <legend>Timezone</legend>
+                          <legend>Time zone</legend>
                         <select name="timezoneid" id="timezoneid" >
                         <option value="0">Africa/Abidjan</option>
                         <option value="1">Africa/Accra</option>
@@ -505,7 +505,7 @@
                         <option value="4">+01:00</option>
                         </select>
                         <br>
-                          <input type="checkbox" id="ZONE_OVERRRIDE" name="ZONE_OVERRRIDE" value="DLS_OFF">Override Timezone<br>
+                          <input type="checkbox" id="ZONE_OVERRRIDE" name="ZONE_OVERRRIDE" value="DLS_OFF">Override Time zone<br>
                           <input style="width:60px" type="number" id="GMT_OFFSET" name="gmt_offset" min="-1440" max="1440" value="0"> GMT Offset ( Minutes )
                           <br>
                            <br>                        
@@ -536,9 +536,9 @@
             
                   <form>
                         <fieldset>
-                        <legend>Wheel Size</legend>
+                        <legend>Reel Size</legend>
                          
-                        <label class="label" for="wheel_size">Wheel size</label>
+                        <label class="label" for="wheel_size">Reel size</label>
                         <select name="wheel_size" id="wheel_size">
                         <option value="0">3" (100ms)</option>
                         <option value="1">4" (125ms)</option> 
@@ -556,13 +556,13 @@
                         <tr>
                         <td>
                         <fieldset>
-                        <legend>Wheel status</legend>
-                        <label class="label" id="w1fault">Wheel 1 fault</label><br>
-                        <label class="label" id="w2fault">Wheel 2 fault</label><br>
-                        <label class="label" id="w3fault">Wheel 3 fault</label><br>
-                        <label class="label" id="w4fault">Wheel 4 fault</label><br>
+                        <legend>Reel status</legend>
+                        <label class="label" id="w1fault">Reel 1 fault</label><br>
+                        <label class="label" id="w2fault">Reel 2 fault</label><br>
+                        <label class="label" id="w3fault">Reel 3 fault</label><br>
+                        <label class="label" id="w4fault">Reel 4 fault</label><br>
                         <br>
-                        <button type="button" onclick="ResetWheels(); return false;">Reset Wheels</button>      
+                        <button type="button" onclick="ResetWheels(); return false;">Reset Reels</button>      
                         </td>
                         </tr>
                 </form>
@@ -570,15 +570,15 @@
                  <tr>
                         <td>
                         <fieldset>
-                        <legend>Time / Date display</legend>
-                        <label class="label" for="Datemode">Dateformat</label>
+                        <legend>Time/Date format</legend>
+                        <label class="label" for="Datemode">Date</label>
                         <select name="Datemode" id="Datemode">
                         <option value="0">Month - Day</option>
                         <option value="1">Day - Month</option> 
                         </select>
                         <br>
                         <br>
-                        <label class="label" for="Timemode">Timeformat</label>
+                        <label class="label" for="Timemode">Time</label>
                         <select name="Timemode" id="Timemode">
                         <option value="0">24 hour</option>
                         <option value="1">12 hour</option>
@@ -590,9 +590,9 @@
                         <tr>
                         <td>
                         <fieldset>
-                        <legend>Sleepmode</legend>
+                        <legend>Silent mode</legend>
                          <input type="checkbox" id="Enable Nightmode" name="24hmode" value="1">
-                         <label class="label" for="Enable Nightmode">Silentmode Enable</label>
+                         <label class="label" for="Enable Nightmode">Silent mode Enable</label>
                          <br>
                          <br>
                          <input type="time" id="sh_start" name="sh_start" value="00:01:01" step=1>
@@ -609,12 +609,12 @@
                         <tr>
                             <td>
                             <fieldset>
-                            <legend>Display / Bell(s) ON-OFF</legend>
+                            <legend>Display/Chime(s) ON-OFF</legend>
                              <input type="checkbox" id="Disable Display" name="display_off" value="1">
-                             <label class="label" for="Disable Display">Disable Display</label>
+                             <label class="label" for="Disable Display">Disable display</label>
                              <br>
                              <input type="checkbox" id="Disable Bell" name="bell_off" value="1">
-                             <label class="label" for="Disable Bell">Disable Bell(s)</label>
+                             <label class="label" for="Disable Bell">Disable chime(s)</label>
                              <br>
                              <br>
                              <button type="button" onclick="SendDisplayGlobalDisable(); return false;">Submit</button>
@@ -635,7 +635,7 @@
 					<table>
 						<thead>
 							<tr>
-								<th colspan="2">Network settings</th>
+								<th colspan="2">Available networks</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -655,7 +655,7 @@
 					<table>
 						<thead>
 							<tr>
-								<th>Current network configuration</th>
+								<th>Current connection</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -1063,7 +1063,7 @@
         
         function loadDataDisplay(){
                var element = document.getElementById("w1fault");
-               element.innerHTML =" Wheel 1 status unknown";
+               element.innerHTML =" Reel 1 status unknown";
                
                element = document.getElementById("w2fault");
                element.innerHTML =" Wheel 2 status unknown";
@@ -1101,9 +1101,9 @@
                 }
                 
                 if(fault===false){
-                     element.innerHTML =" Wheel " + wheel +": No fault";
+                     element.innerHTML =" Reel " + wheel +": No fault";
                 } else {
-                     element.innerHTML =" Wheel " + wheel +": Fault";
+                     element.innerHTML =" Reel " + wheel +": Fault";
                 }
 
                 
