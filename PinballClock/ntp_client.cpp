@@ -19,7 +19,7 @@ NTP.onNTPSyncEvent ([&](NTPSyncEvent_t event) {
        SyncEvent(event);
 });
 
-NTP.begin ((char*)Config.ntpServerName, DEFAULT_NTP_TIMEZONE , true, 0);
+NTP.begin ((char*)Config.ntpServerName, DEFAULT_NTP_TIMEZONE , false, 0);
 NTP.setNTPTimeout(2500);
 NTP.setInterval (50);
 
